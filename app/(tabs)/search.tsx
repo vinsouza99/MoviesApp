@@ -1,3 +1,4 @@
+import { ListItem } from "@/components/ListItem";
 import { useState } from "react";
 import {
   View,
@@ -15,10 +16,13 @@ const API_KEY =
 // Define the expected structure of a movie/TV show item
 type SearchResult = {
   id: number;
-  title?: string; // Movies have "title"
-  name?: string; // TV shows have "name"
+  title?: string;
+  name?: string;
+  release_date: string;
+  popularity: number;
   overview: string;
   poster_path: string | null;
+  type: string | null;
 };
 
 export default function SearchScreen() {
@@ -27,18 +31,21 @@ export default function SearchScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleSearch = async () => {
-    if (!query.trim()) return;
-
+    const encodedQuery = encodeURIComponent(query.trim());
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&language=en-US&query=${encodeURIComponent(
-          query
-        )}&page=1&include_adult=false`
-      );
+      const url = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&certification=${encodedQuery}`;
+      const options = {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${API_KEY}`,
+        },
+      };
+      const response = await fetch(url, options);
       const data = await response.json();
-
+      console.log(data);
       // Ensure results are correctly typed
       setResults(data.results || []);
     } catch (error) {
@@ -65,24 +72,7 @@ export default function SearchScreen() {
       <FlatList
         data={results}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.resultItem}>
-            {item.poster_path && (
-              <Image
-                source={{
-                  uri: `https://image.tmdb.org/t/p/w200${item.poster_path}`,
-                }}
-                style={styles.poster}
-              />
-            )}
-            <View style={styles.info}>
-              <Text style={styles.title}>{item.title || item.name}</Text>
-              <Text numberOfLines={3} style={styles.overview}>
-                {item.overview || "No description available."}
-              </Text>
-            </View>
-          </View>
-        )}
+        renderItem={({ item }) => <ListItem item={item} />}
       />
     </View>
   );

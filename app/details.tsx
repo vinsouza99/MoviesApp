@@ -19,14 +19,26 @@ export default function DetailsScreen() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("id: " + id);
+    console.log("type: " + type);
     if (!id || !type) return;
+    console.log("here");
 
     const fetchDetails = async () => {
       try {
-        const response = await fetch(
-          `https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}&language=en-US`
-        );
+        const url = `https://api.themoviedb.org/3/${type}/${id}`;
+        const options = {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_KEY}`,
+          },
+        };
+
+        const response = await fetch(url, options);
+
         const data = await response.json();
+        console.log(data);
         setDetails(data);
       } catch (error) {
         console.error("Error fetching details:", error);
@@ -38,6 +50,14 @@ export default function DetailsScreen() {
     fetchDetails();
   }, [id, type]);
 
+  if (!details) {
+    return (
+      <View>
+        <Text>No details available</Text>
+      </View>
+    );
+  }
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -46,16 +66,9 @@ export default function DetailsScreen() {
     );
   }
 
-  if (!details) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>No details found.</Text>
-      </View>
-    );
-  }
-
   return (
     <ScrollView style={styles.container}>
+      <Text style={styles.title}>{details.title || details.name}</Text>
       {details.poster_path && (
         <Image
           source={{
@@ -64,10 +77,11 @@ export default function DetailsScreen() {
           style={styles.poster}
         />
       )}
-      <Text style={styles.title}>{details.title || details.name}</Text>
       <Text style={styles.overview}>
         {details.overview || "No description available."}
       </Text>
+      <Text style={styles.subtitle}>Popularity: {details.popularity}</Text>
+      <Text style={styles.subtitle}>Release date: {details.release_date}</Text>
     </ScrollView>
   );
 }
@@ -90,6 +104,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 14,
+    fontWeight: "normal",
+    flexShrink: 1,
   },
   overview: {
     fontSize: 16,

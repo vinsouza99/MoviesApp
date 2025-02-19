@@ -6,20 +6,20 @@ import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { TabTrigger, TabSlot, TabList } from "expo-router/ui";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const activeColor = "rgb(43, 52, 72)";
 
   return (
     <>
       <View style={styles.appBar}>
         <Text style={styles.title}>Movie App</Text>
       </View>
-
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+          tabBarActiveTintColor: activeColor,
           headerShown: false,
           tabBarButton: HapticTab,
           tabBarBackground: TabBarBackground,
@@ -32,24 +32,55 @@ export default function TabLayout() {
           }),
         }}
       >
-        <Stack screenOptions={{ headerShown: false }}>
-          <Tabs.Screen name="index" options={{ title: "Movies" }} />
-          <Tabs.Screen name="search" options={{ title: "Search" }} />
-          <Tabs.Screen name="tvshows" options={{ title: "TV Shows" }} />
-        </Stack>
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: "Movies",
+            tabBarIcon: () => undefined,
+          }}
+        />
+        <Tabs.Screen
+          name="search"
+          options={{
+            title: "Search",
+            tabBarIcon: () => undefined,
+          }}
+        />
+        <Tabs.Screen
+          name="tvshows"
+          options={{
+            title: "TV Shows",
+            tabBarIcon: () => undefined,
+          }}
+        />
       </Tabs>
+      {/*
+      <Tabs>
+        <TabSlot />
+        <TabList>
+          <TabTrigger name="index" href="/">
+            <Text>Movies</Text>
+          </TabTrigger>
+          <TabTrigger name="search" href="/search">
+            <Text>Search</Text>
+          </TabTrigger>
+          <TabTrigger name="tvshows" href="/tvshows">
+            <Text>TV Shows</Text>
+          </TabTrigger>
+        </TabList>
+      </Tabs>
+      */}
     </>
   );
 }
 const styles = StyleSheet.create({
   appBar: {
-    backgroundColor: "#333",
+    backgroundColor: "rgb(43, 52, 72)",
     padding: 15,
     alignItems: "center",
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
     color: "#fff",
   },
 });
