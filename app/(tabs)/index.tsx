@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { Picker } from "@react-native-picker/picker";
-import { View, FlatList, ActivityIndicator, StyleSheet } from "react-native";
+import {
+  View,
+  FlatList,
+  ActivityIndicator,
+  StyleSheet,
+  Button,
+  Text,
+} from "react-native";
 import { ListItem } from "@/components/ListItem";
 import { options } from "@/constants/Constants";
 
@@ -17,7 +24,11 @@ export default function MoviesScreen() {
   const [selectedList, setSelectedList] = useState("1");
   const [url, setUrl] = useState(NOW_PLAYING_URL);
   const [movies, setMovies] = useState([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+
+  const startIndex = (page - 1) * 10;
+  const paginatedMovies = movies.slice(startIndex, startIndex + 10);
 
   useEffect(() => {
     switch (selectedList) {
@@ -43,6 +54,7 @@ export default function MoviesScreen() {
       .then((data) => {
         data.results.map((result: any) => (result.type = "movie"));
         setMovies(data.results);
+        setPage(1);
         setLoading(false);
       })
       .catch((e) => {
@@ -56,11 +68,17 @@ export default function MoviesScreen() {
         <ActivityIndicator size="large" />
       </View>
     );
-
+  const changePage = () => {
+    if (page == 1) {
+      setPage(2);
+    } else {
+      setPage(1);
+    }
+  };
   return (
     <View style={{ flex: 1 }}>
       <FlatList
-        data={movies}
+        data={paginatedMovies}
         keyExtractor={(item: any) => item.id.toString()}
         renderItem={({ item }) => <ListItem item={item} />}
         ListHeaderComponent={
@@ -77,6 +95,21 @@ export default function MoviesScreen() {
               <Picker.Item label="Top rated" value="3" />
               <Picker.Item label="Upcoming" value="4" />
             </Picker>
+          </View>
+        }
+        ListFooterComponent={
+          <View style={styles.pagination}>
+            <Button
+              title="Previous Page"
+              onPress={changePage}
+              disabled={page === 1}
+            />
+            <Text style={styles.pageNumber}>Page {page}</Text>
+            <Button
+              title="Next Page"
+              onPress={changePage}
+              disabled={page === 2}
+            />
           </View>
         }
       />
@@ -100,5 +133,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  pagination: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+  },
+  pageNumber: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

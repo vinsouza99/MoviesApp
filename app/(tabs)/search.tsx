@@ -11,6 +11,7 @@ import {
   StyleSheet,
   Pressable,
   ActivityIndicator,
+  Button,
 } from "react-native";
 import { options } from "@/constants/Constants";
 
@@ -32,6 +33,10 @@ export default function SearchScreen() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("movie");
+  const [page, setPage] = useState(1);
+
+  const startIndex = (page - 1) * 10;
+  const paginatedResults = results.slice(startIndex, startIndex + 10);
 
   const handleSearch = async () => {
     const encodedQuery = encodeURIComponent(query.trim());
@@ -55,11 +60,18 @@ export default function SearchScreen() {
       setLoading(false);
     }
   };
+  const changePage = () => {
+    if (page == 1) {
+      setPage(2);
+    } else {
+      setPage(1);
+    }
+  };
 
   return (
     <View style={styles.container}>
       <FlatList
-        data={results}
+        data={paginatedResults}
         style={styles.flatList}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => <ListItem item={item} />}
@@ -117,6 +129,27 @@ export default function SearchScreen() {
                 </Pressable>
               </View>
             </View>
+          </>
+        }
+        ListFooterComponent={
+          <>
+            {results.length > 10 ? (
+              <View style={styles.pagination}>
+                <Button
+                  title="Previous Page"
+                  onPress={changePage}
+                  disabled={page === 1}
+                />
+                <Text style={styles.pageNumber}>Page {page}</Text>
+                <Button
+                  title="Next Page"
+                  onPress={changePage}
+                  disabled={page === 2}
+                />
+              </View>
+            ) : (
+              ""
+            )}
           </>
         }
       />
@@ -206,5 +239,15 @@ const styles = StyleSheet.create({
   formLabel: {
     fontSize: 16,
     marginBottom: 5,
+  },
+  pagination: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+  },
+  pageNumber: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

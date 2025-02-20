@@ -5,6 +5,7 @@ import {
   FlatList,
   ActivityIndicator,
   StyleSheet,
+  Button,
 } from "react-native";
 import { ListItem } from "@/components/ListItem";
 import { Picker } from "@react-native-picker/picker";
@@ -25,6 +26,10 @@ export default function TVShowsScreen() {
   const [loading, setLoading] = useState(true);
   const [selectedList, setSelectedList] = useState("1");
   const [url, setUrl] = useState(AIRING_TODAY_URL);
+  const [page, setPage] = useState(1);
+
+  const startIndex = (page - 1) * 10;
+  const paginatedTvShows = tvShows.slice(startIndex, startIndex + 10);
 
   useEffect(() => {
     switch (selectedList) {
@@ -59,12 +64,18 @@ export default function TVShowsScreen() {
   }, [url]);
 
   if (loading) return <ActivityIndicator size="large" />;
-
+  const changePage = () => {
+    if (page == 1) {
+      setPage(2);
+    } else {
+      setPage(1);
+    }
+  };
   return (
     <>
       <View style={{ flex: 1 }}>
         <FlatList
-          data={tvShows}
+          data={paginatedTvShows}
           keyExtractor={(item: any) => item.id.toString()}
           renderItem={({ item }) => <ListItem item={item} />}
           ListEmptyComponent={
@@ -86,6 +97,21 @@ export default function TVShowsScreen() {
                 <Picker.Item label="Popular" value="3" />
                 <Picker.Item label="Top rated" value="4" />
               </Picker>
+            </View>
+          }
+          ListFooterComponent={
+            <View style={styles.pagination}>
+              <Button
+                title="Previous Page"
+                onPress={changePage}
+                disabled={page === 1}
+              />
+              <Text style={styles.pageNumber}>Page {page}</Text>
+              <Button
+                title="Next Page"
+                onPress={changePage}
+                disabled={page === 2}
+              />
             </View>
           }
         />
@@ -116,5 +142,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     color: "#000",
+  },
+  pagination: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+  },
+  pageNumber: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
