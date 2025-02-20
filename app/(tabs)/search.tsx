@@ -34,30 +34,46 @@ export default function SearchScreen() {
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("movie");
   const [page, setPage] = useState(1);
+  const [queryError, setQueryError] = useState("");
+  const [selectedTypeError, setSelectedTypeError] = useState("");
 
   const startIndex = (page - 1) * 10;
   const paginatedResults = results.slice(startIndex, startIndex + 10);
 
   const handleSearch = async () => {
-    const encodedQuery = encodeURIComponent(query.trim());
-    setLoading(true);
+    let valid = true;
+    setQueryError("");
+    setSelectedTypeError("");
 
-    try {
-      const url = `https://api.themoviedb.org/3/search/${selectedType}?query=${encodedQuery}`;
-      fetch(url, options)
-        .then((res) => res.json())
-        .then((data) => {
-          data.results.map((result: any) => (result.type = selectedType));
-          setResults(data.results || []);
-        })
-        .catch((e) => {
-          console.error(e);
-          throw e;
-        });
-    } catch (error) {
-      console.error("Search error:", error);
-    } finally {
-      setLoading(false);
+    if (!query.trim()) {
+      setQueryError("Please enter a movie or TV show name.");
+      valid = false;
+    }
+    if (!selectedType) {
+      setSelectedTypeError("Please select a search type.");
+      valid = false;
+    }
+
+    if (valid) {
+      setLoading(true);
+      const encodedQuery = encodeURIComponent(query.trim());
+      try {
+        const url = `https://api.themoviedb.org/3/search/${selectedType}?query=${encodedQuery}`;
+        fetch(url, options)
+          .then((res) => res.json())
+          .then((data) => {
+            data.results.map((result: any) => (result.type = selectedType));
+            setResults(data.results || []);
+          })
+          .catch((e) => {
+            console.error(e);
+            throw e;
+          });
+      } catch (error) {
+        console.error("Search error:", error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
   const changePage = () => {
@@ -89,8 +105,16 @@ export default function SearchScreen() {
         ListHeaderComponent={
           <>
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Search Movies/TV Shows Name</Text>
-              <View style={styles.inputContainer}>
+              <Text style={styles.formLabel}>
+                Search Movies/TV Shows Name{" "}
+                <Text style={{ color: "red" }}>*</Text>
+              </Text>
+              <View
+                style={[
+                  styles.inputContainer,
+                  queryError ? styles.inputError : {},
+                ]}
+              >
                 <Ionicons name="search" size={20} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
@@ -99,9 +123,14 @@ export default function SearchScreen() {
                   onChangeText={setQuery}
                 />
               </View>
+              {queryError ? (
+                <Text style={styles.errorText}>{queryError}</Text>
+              ) : null}
             </View>
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Search type</Text>
+              <Text style={styles.formLabel}>
+                Search type <Text style={{ color: "red" }}>*</Text>
+              </Text>
               <View style={styles.formRow}>
                 <Picker
                   selectedValue={selectedType}
@@ -128,6 +157,9 @@ export default function SearchScreen() {
                   <Text style={styles.buttonText}>Search</Text>
                 </Pressable>
               </View>
+              {selectedTypeError ? (
+                <Text style={styles.errorText}>{selectedTypeError}</Text>
+              ) : null}
             </View>
           </>
         }
@@ -249,5 +281,14 @@ const styles = StyleSheet.create({
   pageNumber: {
     fontSize: 16,
     fontWeight: "bold",
+  },
+  errorText: {
+    color: "red",
+    fontSize: 14,
+    marginVertical: 5,
+  },
+  inputError: {
+    borderWidth: 1,
+    borderColor: "red",
   },
 });
