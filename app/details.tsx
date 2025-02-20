@@ -8,9 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import { useEffect, useState } from "react";
-
-const API_KEY =
-  "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjMDYwOTY4YTIyNWU3ZDUwYmI5MzIyZTZmN2YxZTFiYyIsIm5iZiI6MTcxMTgxMzIyNC4zMDA5OTk5LCJzdWIiOiI2NjA4MzI2ODBkNDE3ZTAxN2MwNzA1OGMiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.BYvN7iTZnSj4aSxvlZdoguRybnLWs0UzzdVMms1ujXk";
+import { options } from "@/constants/Constants";
 export default function DetailsScreen() {
   const { id, type } = useLocalSearchParams();
 
@@ -23,14 +21,6 @@ export default function DetailsScreen() {
     const fetchDetails = async () => {
       try {
         const url = `https://api.themoviedb.org/3/${type}/${id}`;
-        const options = {
-          method: "GET",
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${API_KEY}`,
-          },
-        };
-
         const response = await fetch(url, options);
 
         const data = await response.json();
@@ -71,11 +61,30 @@ export default function DetailsScreen() {
           style={styles.poster}
         />
       )}
+      <Text style={styles.subheader}>Overview</Text>
       <Text style={styles.overview}>
         {details.overview || "No description available."}
       </Text>
-      <Text style={styles.subtitle}>Popularity: {details.popularity}</Text>
-      <Text style={styles.subtitle}>Release date: {details.release_date}</Text>
+      <View
+        style={{
+          flexDirection: "row",
+          paddingBottom: 50,
+          justifyContent: "space-evenly",
+        }}
+      >
+        <View>
+          <Text style={styles.subheader}>Popularity</Text>
+          <Text style={(styles.overview, { textAlign: "center" })}>
+            {details.popularity}
+          </Text>
+        </View>
+        <View>
+          <Text style={styles.subheader}>Release Date</Text>
+          <Text style={(styles.overview, { textAlign: "center" })}>
+            {details.release_date || details.first_air_date || "N/A"}
+          </Text>
+        </View>
+      </View>
     </ScrollView>
   );
 }
@@ -99,10 +108,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
-  subtitle: {
-    fontSize: 14,
-    fontWeight: "normal",
-    flexShrink: 1,
+  subheader: {
+    fontWeight: "bold",
+    fontSize: 18,
+    marginBottom: 10,
+    marginTop: 20,
   },
   overview: {
     fontSize: 16,
@@ -113,5 +123,8 @@ const styles = StyleSheet.create({
     height: 500,
     resizeMode: "contain",
     marginBottom: 16,
+  },
+  column: {
+    textAlign: "center",
   },
 });

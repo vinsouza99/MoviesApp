@@ -99,18 +99,19 @@ const styles = StyleSheet.create({
   tabList: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: "#fff",
-    paddingVertical: 10,
+    backgroundColor: "#ffff",
+    paddingVertical: 0,
     gap: 0,
   },
   tab: {
     flex: 1,
-    paddingVertical: 10,
+    paddingTop: 20,
+    paddingBottom: 10,
     borderBottomWidth: 3,
   },
   tabText: {
     textAlign: "center",
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "bold",
     color: "rgb(43, 52, 72)",
   },

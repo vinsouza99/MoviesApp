@@ -1,26 +1,29 @@
 import { ListItem } from "@/components/ListItem";
 import { Picker } from "@react-native-picker/picker";
 import { useState } from "react";
+import { Colors } from "../../constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
 import {
   View,
   Text,
   TextInput,
-  Button,
   FlatList,
-  Image,
   StyleSheet,
+  Pressable,
+  ActivityIndicator,
 } from "react-native";
+import { options } from "@/constants/Constants";
 
-const API_KEY =
-  "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjMDYwOTY4YTIyNWU3ZDUwYmI5MzIyZTZmN2YxZTFiYyIsIm5iZiI6MTcxMTgxMzIyNC4zMDA5OTk5LCJzdWIiOiI2NjA4MzI2ODBkNDE3ZTAxN2MwNzA1OGMiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.BYvN7iTZnSj4aSxvlZdoguRybnLWs0UzzdVMms1ujXk"; // Define the expected structure of a movie/TV show item
 type SearchResult = {
   id: number;
   title?: string;
   name?: string;
   release_date: string;
+  first_air_date: string;
   popularity: number;
   overview: string;
   poster_path: string | null;
+  media_type: string | null;
   type: string | null;
 };
 
@@ -36,17 +39,16 @@ export default function SearchScreen() {
 
     try {
       const url = `https://api.themoviedb.org/3/search/${selectedType}?query=${encodedQuery}`;
-      const options = {
-        method: "GET",
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_KEY}`,
-        },
-      };
-      const response = await fetch(url, options);
-      const data = await response.json();
-      // Ensure results are correctly typed
-      setResults(data.results || []);
+      fetch(url, options)
+        .then((res) => res.json())
+        .then((data) => {
+          data.results.map((result: any) => (result.type = selectedType));
+          setResults(data.results || []);
+        })
+        .catch((e) => {
+          console.error(e);
+          throw e;
+        });
     } catch (error) {
       console.error("Search error:", error);
     } finally {
@@ -56,27 +58,38 @@ export default function SearchScreen() {
 
   return (
     <View style={styles.container}>
-      {results.length === 0 && !loading && (
-        <Text style={styles.noResults}>No results found</Text>
-      )}
-
       <FlatList
         data={results}
+        style={styles.flatList}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => <ListItem item={item} />}
+        ListEmptyComponent={
+          loading ? (
+            <View style={styles.noResults}>
+              <ActivityIndicator size={"large"} />
+            </View>
+          ) : (
+            <View style={styles.noResults}>
+              <Text style={styles.noResultsText}>No results found</Text>
+            </View>
+          )
+        }
         ListHeaderComponent={
           <>
             <View style={styles.formGroup}>
-              <Text>Search Movies/TV Shows Name</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="i.e: James Bond"
-                value={query}
-                onChangeText={setQuery}
-              />
+              <Text style={styles.formLabel}>Search Movies/TV Shows Name</Text>
+              <View style={styles.inputContainer}>
+                <Ionicons name="search" size={20} style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="i.e: James Bond"
+                  value={query}
+                  onChangeText={setQuery}
+                />
+              </View>
             </View>
             <View style={styles.formGroup}>
-              <Text>Search type</Text>
+              <Text style={styles.formLabel}>Search type</Text>
               <View style={styles.formRow}>
                 <Picker
                   selectedValue={selectedType}
@@ -89,11 +102,19 @@ export default function SearchScreen() {
                   <Picker.Item label="TV Shows" value="tv" />
                   <Picker.Item label="Multi" value="multi" />
                 </Picker>
-                <Button
-                  title="Search"
+                <Pressable
+                  style={[
+                    styles.buttonContainer,
+                    {
+                      backgroundColor: Colors.light.buttonBackground,
+                    },
+                  ]}
                   onPress={handleSearch}
                   disabled={loading}
-                />
+                >
+                  <Ionicons name="search" size={20} color={"#ffff"} />
+                  <Text style={styles.buttonText}>Search</Text>
+                </Pressable>
               </View>
             </View>
           </>
@@ -108,17 +129,35 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "whitesmoke",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    height: 50,
+  },
+  inputIcon: {
+    marginRight: 8,
+  },
   input: {
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    paddingHorizontal: 8,
-    marginBottom: 10,
+    flex: 1,
+    fontSize: 16,
+    color: "#000",
+  },
+  flatList: {
+    flex: 1,
   },
   noResults: {
-    marginTop: 20,
-    textAlign: "center",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 50,
+  },
+  noResultsText: {
     fontSize: 16,
+    textAlign: "center",
+    color: "#000",
   },
   resultItem: {
     flexDirection: "row",
@@ -141,13 +180,31 @@ const styles = StyleSheet.create({
     color: "#555",
   },
   picker: {
-    width: "75%",
-    padding: 5,
+    flex: 2,
     margin: "auto",
+    backgroundColor: "whitesmoke",
+  },
+  buttonContainer: {
+    flex: 1,
+    height: 50,
+    flexDirection: "row",
+    gap: 5,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 3,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
   },
   formGroup: {},
   formRow: {
     flexDirection: "row",
     justifyContent: "flex-start",
+    gap: 15,
+  },
+  formLabel: {
+    fontSize: 16,
+    marginBottom: 5,
   },
 });

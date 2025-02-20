@@ -3,17 +3,13 @@ import {
   View,
   Text,
   FlatList,
-  Image,
-  Button,
   ActivityIndicator,
   StyleSheet,
 } from "react-native";
-import { useRouter } from "expo-router";
 import { ListItem } from "@/components/ListItem";
 import { Picker } from "@react-native-picker/picker";
+import { options } from "@/constants/Constants";
 
-const API_KEY =
-  "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjMDYwOTY4YTIyNWU3ZDUwYmI5MzIyZTZmN2YxZTFiYyIsIm5iZiI6MTcxMTgxMzIyNC4zMDA5OTk5LCJzdWIiOiI2NjA4MzI2ODBkNDE3ZTAxN2MwNzA1OGMiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.BYvN7iTZnSj4aSxvlZdoguRybnLWs0UzzdVMms1ujXk";
 const AIRING_TODAY_URL =
   "https://api.themoviedb.org/3/tv/airing_today?language=en-US&page=1";
 const ON_THE_AIR_URL =
@@ -23,20 +19,12 @@ const POPULAR_URL =
   "https://api.themoviedb.org/3/tv/popular?language=en-US&page=1";
 const TOP_RATED_URL =
   "https://api.themoviedb.org/3/tv/top_rated?language=en-US&page=1";
-// Define a type for TV shows
-type TVShow = {
-  id: number;
-  name: string;
-  overview: string;
-  poster_path: string | null;
-};
 
 export default function TVShowsScreen() {
   const [tvShows, setTvShows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedList, setSelectedList] = useState("1");
   const [url, setUrl] = useState(AIRING_TODAY_URL);
-  const router = useRouter();
 
   useEffect(() => {
     switch (selectedList) {
@@ -56,18 +44,16 @@ export default function TVShowsScreen() {
   }, [selectedList]);
 
   useEffect(() => {
-    const options = {
-      method: "GET",
-      headers: {
-        accept: "application/json",
-        Authorization: `Bearer ${API_KEY}`,
-      },
-    };
+    setTvShows([]);
     fetch(url, options)
       .then((res) => res.json())
       .then((data) => {
         data.results.map((result: any) => (result.type = "tv"));
         setTvShows(data.results);
+        setLoading(false);
+      })
+      .catch((e) => {
+        console.error(e);
         setLoading(false);
       });
   }, [url]);
@@ -81,6 +67,11 @@ export default function TVShowsScreen() {
           data={tvShows}
           keyExtractor={(item: any) => item.id.toString()}
           renderItem={({ item }) => <ListItem item={item} />}
+          ListEmptyComponent={
+            <View style={styles.noResults}>
+              <Text style={styles.noResultsText}>No results found</Text>
+            </View>
+          }
           ListHeaderComponent={
             <View style={styles.container}>
               <Picker
@@ -107,13 +98,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "100%",
     padding: 10,
-    marginTop: 15,
     marginBottom: 15,
     alignItems: "flex-start",
   },
   picker: {
     width: "75%",
-    padding: 5,
     margin: "auto",
+    backgroundColor: "whitesmoke",
+  },
+  noResults: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 50,
+  },
+  noResultsText: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "#000",
   },
 });

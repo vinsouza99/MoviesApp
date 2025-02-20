@@ -1,19 +1,9 @@
 import { useEffect, useState } from "react";
 import { Picker } from "@react-native-picker/picker";
-import {
-  View,
-  Text,
-  FlatList,
-  Image,
-  Button,
-  ActivityIndicator,
-  StyleSheet,
-} from "react-native";
-import { useRouter } from "expo-router";
+import { View, FlatList, ActivityIndicator, StyleSheet } from "react-native";
 import { ListItem } from "@/components/ListItem";
+import { options } from "@/constants/Constants";
 
-const API_KEY =
-  "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjMDYwOTY4YTIyNWU3ZDUwYmI5MzIyZTZmN2YxZTFiYyIsIm5iZiI6MTcxMTgxMzIyNC4zMDA5OTk5LCJzdWIiOiI2NjA4MzI2ODBkNDE3ZTAxN2MwNzA1OGMiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.BYvN7iTZnSj4aSxvlZdoguRybnLWs0UzzdVMms1ujXk";
 const NOW_PLAYING_URL =
   "https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1";
 const POPULAR_URL =
@@ -22,8 +12,8 @@ const TOP_RATED_URL =
   "https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1";
 const UPCOMING_URL =
   "https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=1";
+
 export default function MoviesScreen() {
-  const router = useRouter();
   const [selectedList, setSelectedList] = useState("1");
   const [url, setUrl] = useState(NOW_PLAYING_URL);
   const [movies, setMovies] = useState([]);
@@ -48,13 +38,6 @@ export default function MoviesScreen() {
 
   useEffect(() => {
     if (!loading) setLoading(true);
-    const options = {
-      method: "GET",
-      headers: {
-        accept: "application/json",
-        Authorization: `Bearer ${API_KEY}`,
-      },
-    };
     fetch(url, options)
       .then((res) => res.json())
       .then((data) => {
@@ -105,14 +88,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "100%",
     padding: 10,
-    marginTop: 15,
     marginBottom: 15,
     alignItems: "flex-start",
   },
   picker: {
     width: "75%",
-    padding: 5,
     margin: "auto",
+    backgroundColor: "whitesmoke",
   },
   center: {
     flex: 1,

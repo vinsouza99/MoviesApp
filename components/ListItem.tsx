@@ -1,16 +1,20 @@
 import React from "react";
-import { View, Text, Image, Button, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, Pressable } from "react-native";
 import { useRouter } from "expo-router";
+import { Colors } from "@/constants/Colors";
+import NotFoundImage from "../assets/images/image-not-found.png";
 
 type Item = {
   id: number;
-  title?: string; // Movies have "title"
-  name?: string; // TV shows have "name"
-  release_date: string;
+  title?: string;
+  name?: string;
+  release_date?: string;
+  first_air_date?: string;
   popularity: number;
   overview: string;
   poster_path: string | null;
   type: string | null;
+  media_type: string | null;
 };
 
 type ListItemProps = {
@@ -19,29 +23,35 @@ type ListItemProps = {
 
 export const ListItem: React.FC<ListItemProps> = ({ item }) => {
   const router = useRouter();
-
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
         <Image
-          source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
+          source={
+            item.poster_path
+              ? { uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }
+              : NotFoundImage
+          }
           style={styles.poster}
         />
       </View>
       <View style={styles.detailsContainer}>
         <Text style={styles.title}>{item.title || item.name}</Text>
         <Text style={styles.subtitle}>Popularity: {item.popularity}</Text>
-        <Text style={styles.subtitle}>Release date: {item.release_date}</Text>
-
-        <Text numberOfLines={3} style={styles.overview}>
-          {item.overview}
+        <Text style={styles.subtitle}>
+          Release date: {item.release_date || item.first_air_date || "N/A"}
         </Text>
-        <Button
-          title="More Details"
+
+        <Pressable
+          style={[styles.buttonContainer]}
           onPress={() =>
-            router.push(`../details?id=${item.id}&type=${item.type}`)
+            router.push(
+              `../details?id=${item.id}&type=${item.media_type || item.type}`
+            )
           }
-        />
+        >
+          <Text style={styles.buttonText}>More Details</Text>
+        </Pressable>
       </View>
     </View>
   );
@@ -64,7 +74,7 @@ const styles = StyleSheet.create({
   poster: {
     height: 200,
     width: 140,
-    borderRadius: 8,
+    objectFit: "contain",
   },
   title: {
     fontSize: 18,
@@ -74,7 +84,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     fontWeight: "normal",
-    flexShrink: 1,
+    flexGrow: 1,
   },
   overview: {
     fontSize: 14,
@@ -82,7 +92,20 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     textAlign: "justify",
   },
-  button: {
-    textTransform: "capitalize", // Pushes button to the bottom
+  buttonContainer: {
+    flex: 1,
+    marginTop: 15,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 3,
+    backgroundColor: Colors.light.buttonBackground,
+    alignSelf: "flex-end",
+    flexGrow: 0,
+    width: "100%",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
   },
 });
