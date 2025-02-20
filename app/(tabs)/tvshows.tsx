@@ -76,23 +76,29 @@ export default function TVShowsScreen() {
 
   return (
     <>
-      <View style={styles.container}>
-        <Picker
-          selectedValue={selectedList}
-          onValueChange={(itemValue, itemIndex) => setSelectedList(itemValue)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Airing today" value="1" />
-          <Picker.Item label="On the air" value="2" />
-          <Picker.Item label="Popular" value="3" />
-          <Picker.Item label="Top rated" value="4" />
-        </Picker>
+      <View style={{ flex: 1 }}>
+        <FlatList
+          data={tvShows}
+          keyExtractor={(item: any) => item.id.toString()}
+          renderItem={({ item }) => <ListItem item={item} />}
+          ListHeaderComponent={
+            <View style={styles.container}>
+              <Picker
+                selectedValue={selectedList}
+                onValueChange={(itemValue, itemIndex) =>
+                  setSelectedList(itemValue)
+                }
+                style={styles.picker}
+              >
+                <Picker.Item label="Airing today" value="1" />
+                <Picker.Item label="On the air" value="2" />
+                <Picker.Item label="Popular" value="3" />
+                <Picker.Item label="Top rated" value="4" />
+              </Picker>
+            </View>
+          }
+        />
       </View>
-      <FlatList
-        data={tvShows}
-        keyExtractor={(item: any) => item.id.toString()}
-        renderItem={({ item }) => <ListItem item={item} />}
-      />
     </>
   );
 }
@@ -106,7 +112,8 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   picker: {
-    width: "100%",
+    width: "75%",
     padding: 5,
+    margin: "auto",
   },
 });

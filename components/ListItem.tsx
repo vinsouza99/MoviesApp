@@ -19,7 +19,6 @@ type ListItemProps = {
 
 export const ListItem: React.FC<ListItemProps> = ({ item }) => {
   const router = useRouter();
-  console.log(item);
 
   return (
     <View style={styles.container}>
@@ -30,7 +29,7 @@ export const ListItem: React.FC<ListItemProps> = ({ item }) => {
         />
       </View>
       <View style={styles.detailsContainer}>
-        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.title}>{item.title || item.name}</Text>
         <Text style={styles.subtitle}>Popularity: {item.popularity}</Text>
         <Text style={styles.subtitle}>Release date: {item.release_date}</Text>
 
@@ -60,7 +59,6 @@ const styles = StyleSheet.create({
   detailsContainer: {
     flex: 1,
     justifyContent: "space-between",
-    height: "100%",
     gap: 5,
   },
   poster: {

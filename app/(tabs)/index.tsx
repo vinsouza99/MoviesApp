@@ -47,6 +47,7 @@ export default function MoviesScreen() {
   }, [selectedList]);
 
   useEffect(() => {
+    if (!loading) setLoading(true);
     const options = {
       method: "GET",
       headers: {
@@ -60,30 +61,43 @@ export default function MoviesScreen() {
         data.results.map((result: any) => (result.type = "movie"));
         setMovies(data.results);
         setLoading(false);
+      })
+      .catch((e) => {
+        console.error(e);
+        setLoading(false);
       });
   }, [url]);
-  if (loading) return <ActivityIndicator size="large" />;
+  if (loading)
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
 
   return (
-    <>
-      <View style={styles.container}>
-        <Picker
-          selectedValue={selectedList}
-          onValueChange={(itemValue, itemIndex) => setSelectedList(itemValue)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Now Playing" value="1" />
-          <Picker.Item label="Popular" value="2" />
-          <Picker.Item label="Top rated" value="3" />
-          <Picker.Item label="Upcoming" value="4" />
-        </Picker>
-      </View>
+    <View style={{ flex: 1 }}>
       <FlatList
         data={movies}
         keyExtractor={(item: any) => item.id.toString()}
         renderItem={({ item }) => <ListItem item={item} />}
+        ListHeaderComponent={
+          <View style={styles.container}>
+            <Picker
+              selectedValue={selectedList}
+              onValueChange={(itemValue, itemIndex) =>
+                setSelectedList(itemValue)
+              }
+              style={styles.picker}
+            >
+              <Picker.Item label="Now Playing" value="1" />
+              <Picker.Item label="Popular" value="2" />
+              <Picker.Item label="Top rated" value="3" />
+              <Picker.Item label="Upcoming" value="4" />
+            </Picker>
+          </View>
+        }
       />
-    </>
+    </View>
   );
 }
 const styles = StyleSheet.create({
@@ -96,7 +110,13 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   picker: {
-    width: "100%",
+    width: "75%",
     padding: 5,
+    margin: "auto",
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

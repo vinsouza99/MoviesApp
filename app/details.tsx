@@ -10,8 +10,7 @@ import {
 import { useEffect, useState } from "react";
 
 const API_KEY =
-  "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjMDYwOTY4YTIyNWU3ZDUwYmI5MzIyZTZmN2YxZTFiYyIsIm5iZiI6MTcxMTgxMzIyNC4zMDA5OTk5LCJzdWIiOiI2NjA4MzI2ODBkNDE3ZTAxN2MwNzA1OGMiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.BYvN7iTZnSj4aSxvlZdoguRybnLWs0UzzdVMms1ujXk"; // Replace with your actual API key
-
+  "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjMDYwOTY4YTIyNWU3ZDUwYmI5MzIyZTZmN2YxZTFiYyIsIm5iZiI6MTcxMTgxMzIyNC4zMDA5OTk5LCJzdWIiOiI2NjA4MzI2ODBkNDE3ZTAxN2MwNzA1OGMiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.BYvN7iTZnSj4aSxvlZdoguRybnLWs0UzzdVMms1ujXk";
 export default function DetailsScreen() {
   const { id, type } = useLocalSearchParams();
 
@@ -19,10 +18,7 @@ export default function DetailsScreen() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("id: " + id);
-    console.log("type: " + type);
     if (!id || !type) return;
-    console.log("here");
 
     const fetchDetails = async () => {
       try {
@@ -38,7 +34,6 @@ export default function DetailsScreen() {
         const response = await fetch(url, options);
 
         const data = await response.json();
-        console.log(data);
         setDetails(data);
       } catch (error) {
         console.error("Error fetching details:", error);
@@ -50,18 +45,17 @@ export default function DetailsScreen() {
     fetchDetails();
   }, [id, type]);
 
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
   if (!details) {
     return (
       <View>
         <Text>No details available</Text>
-      </View>
-    );
-  }
-
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
@@ -116,8 +110,8 @@ const styles = StyleSheet.create({
   },
   poster: {
     width: "100%",
-    height: 300,
-    resizeMode: "cover",
+    height: 500,
+    resizeMode: "contain",
     marginBottom: 16,
   },
 });
