@@ -5,26 +5,15 @@ import { TabTrigger, TabSlot, TabList } from "expo-router/ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function TabLayout() {
-  const activeColor = "rgb(43, 52, 72)";
   const router = useRouter();
   const pathname = usePathname();
-  const getTabStyle = (route: string) => [
-    styles.tab,
-    pathname === route ? styles.activeTab : styles.inactiveTab,
-  ];
 
-  const getTabTextStyle = (route: string) => [
-    styles.tabText,
-    pathname === route ? styles.activeTabText : styles.inactiveTabText,
-  ];
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* AppBar */}
       <View style={styles.appBar}>
         <Text style={styles.title}>Movies App</Text>
       </View>
       <Navigator>
-        {/* Tabs Navigation at the Top */}
         <TabList style={styles.tabList}>
           <TabTrigger
             name="index"
@@ -84,8 +73,6 @@ export default function TabLayout() {
             </Text>
           </TabTrigger>
         </TabList>
-
-        {/* Content */}
         <TabSlot style={styles.content} />
       </Navigator>
     </SafeAreaView>
