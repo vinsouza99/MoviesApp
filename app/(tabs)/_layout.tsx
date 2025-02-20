@@ -1,19 +1,22 @@
-import { Stack, Tabs, Navigator, useRouter } from "expo-router";
 import React from "react";
-import { Platform, View, Text, StyleSheet } from "react-native";
-
-import { HapticTab } from "@/components/HapticTab";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import TabBarBackground from "@/components/ui/TabBarBackground";
-import { Colors } from "@/constants/Colors";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Navigator, useRouter, usePathname } from "expo-router";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { TabTrigger, TabSlot, TabList } from "expo-router/ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const activeColor = "rgb(43, 52, 72)";
-  const router = useRouter(); // Get router instance
+  const router = useRouter();
+  const pathname = usePathname();
+  const getTabStyle = (route: string) => [
+    styles.tab,
+    pathname === route ? styles.activeTab : styles.inactiveTab,
+  ];
 
+  const getTabTextStyle = (route: string) => [
+    styles.tabText,
+    pathname === route ? styles.activeTabText : styles.inactiveTabText,
+  ];
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* AppBar */}
@@ -25,24 +28,60 @@ export default function TabLayout() {
         <TabList style={styles.tabList}>
           <TabTrigger
             name="index"
-            style={styles.tab}
+            style={[
+              styles.tab,
+              pathname === "/" ? styles.activeTab : styles.inactiveTab,
+            ]}
             onPress={() => router.push("/")}
           >
-            <Text style={styles.tabText}>Movies</Text>
+            <Text
+              style={[
+                styles.tabText,
+                pathname === "/"
+                  ? styles.activeTabText
+                  : styles.inactiveTabText,
+              ]}
+            >
+              Movies
+            </Text>
           </TabTrigger>
           <TabTrigger
             name="search"
-            style={styles.tab}
+            style={[
+              styles.tab,
+              pathname === "/search" ? styles.activeTab : styles.inactiveTab,
+            ]}
             onPress={() => router.push("/search")}
           >
-            <Text style={styles.tabText}>Search</Text>
+            <Text
+              style={[
+                styles.tabText,
+                pathname === "/search"
+                  ? styles.activeTabText
+                  : styles.inactiveTabText,
+              ]}
+            >
+              Search Results
+            </Text>
           </TabTrigger>
           <TabTrigger
             name="tvshows"
-            style={styles.tab}
+            style={[
+              styles.tab,
+              pathname === "/tvshows" ? styles.activeTab : styles.inactiveTab,
+            ]}
             onPress={() => router.push("/tvshows")}
           >
-            <Text style={styles.tabText}>TV Shows</Text>
+            <Text
+              style={[
+                styles.tabText,
+                pathname === "/tvshows"
+                  ? styles.activeTabText
+                  : styles.inactiveTabText,
+              ]}
+            >
+              TV Shows
+            </Text>
           </TabTrigger>
         </TabList>
 
@@ -62,15 +101,30 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     backgroundColor: "#fff",
     paddingVertical: 10,
+    gap: 0,
   },
   tab: {
+    flex: 1,
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    borderBottomWidth: 3,
   },
   tabText: {
-    fontSize: 16,
+    textAlign: "center",
+    fontSize: 14,
     fontWeight: "bold",
     color: "rgb(43, 52, 72)",
+  },
+  activeTab: {
+    borderBottomColor: "rgb(43, 52, 72)",
+  },
+  inactiveTab: {
+    borderBottomColor: "lightgray",
+  },
+  activeTabText: {
+    color: "rgb(43, 52, 72)",
+  },
+  inactiveTabText: {
+    color: "lightgray",
   },
   appBar: {
     backgroundColor: "rgb(43, 52, 72)",
